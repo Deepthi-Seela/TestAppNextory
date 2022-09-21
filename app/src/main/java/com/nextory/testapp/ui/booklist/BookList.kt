@@ -22,22 +22,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import coil.compose.AsyncImage
 import com.nextory.testapp.R
 import com.nextory.testapp.data.Book
+import com.nextory.testapp.ui.Screen
 import com.nextory.testapp.ui.components.ListItem
 import com.nextory.testapp.ui.utils.rememberFlowWithLifecycle
 
 @Composable
 fun BookList(
+    navController: NavController,
     bookListViewModel: BookListViewModel = hiltViewModel()
 ) {
     val pagedBooks = rememberFlowWithLifecycle(bookListViewModel.pagedBooks)
         .collectAsLazyPagingItems()
     BookList(
+        navController = navController,
         pagedBooks = pagedBooks,
         onSearchTextChanged = {
         }
@@ -51,6 +55,7 @@ fun BookList(
 )
 @Composable
 private fun BookList(
+    navController: NavController,
     pagedBooks: LazyPagingItems<Book>,
     onSearchTextChanged: (String) -> Unit = {}
 ) {
@@ -98,7 +103,7 @@ private fun BookList(
             }
 
             items(pagedBooks) { book ->
-                BookItem(book = book!!)
+                BookItem(book = book!!, navController)
             }
         }
     }
@@ -117,9 +122,13 @@ private fun BookListTopBar() {
 }
 
 @Composable
-private fun BookItem(book: Book) {
+private fun BookItem(book: Book, navController: NavController) {
     ListItem(
-        modifier = Modifier.clickable { },
+        modifier = Modifier
+            .clickable {
+                val id = book.id
+                navController.navigate(Screen.BookDetails.route + "/$id")
+            },
         icon = {
             AsyncImage(
                 model = book.imageUrl,
