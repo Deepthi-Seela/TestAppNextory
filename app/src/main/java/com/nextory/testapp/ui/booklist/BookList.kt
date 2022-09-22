@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,11 +41,19 @@ fun BookList(
 ) {
     val pagedBooks = rememberFlowWithLifecycle(bookListViewModel.pagedBooks)
         .collectAsLazyPagingItems()
+    val isSearching by remember { bookListViewModel.isSearching }
+    LaunchedEffect(Unit) {
+        bookListViewModel.getBooks()
+    }
+
     BookList(
         navController = navController,
         pagedBooks = pagedBooks,
         onSearchTextChanged = {
-        }
+            bookListViewModel.searchBookList(it)
+        },
+        isSearching = isSearching,
+        allBooks = bookListViewModel.booksList
     )
 }
 
@@ -57,9 +66,12 @@ fun BookList(
 private fun BookList(
     navController: NavController,
     pagedBooks: LazyPagingItems<Book>,
-    onSearchTextChanged: (String) -> Unit = {}
+    onSearchTextChanged: (String) -> Unit = {},
+    isSearching: Boolean,
+    allBooks: List<Book>
 ) {
     Scaffold(topBar = { BookListTopBar() }) { paddingValues ->
+        var searchText by remember { mutableStateOf("") }
         LazyColumn(
             modifier = Modifier.padding(paddingValues),
             contentPadding = WindowInsets.safeDrawing
@@ -67,7 +79,6 @@ private fun BookList(
                 .asPaddingValues()
         ) {
             stickyHeader {
-                var searchText by remember { mutableStateOf("") }
                 val keyboardController = LocalSoftwareKeyboardController.current!!
                 val focusRequester = remember { FocusRequester() }
                 OutlinedTextField(
@@ -102,8 +113,19 @@ private fun BookList(
                 )
             }
 
-            items(pagedBooks) { book ->
-                BookItem(book = book!!, navController)
+            // Render paged books if not searching else render all books list
+            if (!isSearching || searchText.isEmpty()) {
+                items(
+                    items = pagedBooks
+                ) { book ->
+                    BookItem(book = book!!, navController)
+                }
+            } else {
+                items(
+                    items = allBooks
+                ) { book ->
+                    BookItem(book = book, navController)
+                }
             }
         }
     }

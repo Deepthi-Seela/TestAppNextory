@@ -18,4 +18,8 @@ class BookRepository @Inject constructor(
     fun getBookById(id: Long): Flow<Book> {
         return bookDao.getBookById(id)
     }
+
+    fun getAllBooks(): Flow<List<Book>> {
+        return bookDao.getAllBooks()
+    }
 }
