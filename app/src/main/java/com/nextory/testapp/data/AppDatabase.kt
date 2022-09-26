@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
-        Book::class
+        BookDto::class
     ],
     version = 1
 )

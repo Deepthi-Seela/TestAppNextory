@@ -2,6 +2,7 @@ package com.nextory.testapp.ui.booklist
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,18 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import coil.compose.AsyncImage
 import com.nextory.testapp.R
-import com.nextory.testapp.data.Book
+import com.nextory.testapp.domain.Book
 import com.nextory.testapp.ui.Screen
 import com.nextory.testapp.ui.components.ListItem
 import com.nextory.testapp.ui.utils.rememberFlowWithLifecycle
@@ -150,7 +153,8 @@ private fun BookItem(book: Book, navController: NavController) {
             .clickable {
                 val id = book.id
                 navController.navigate(Screen.BookDetails.route + "/$id")
-            },
+            }
+            .background(color = if (book.isFavorite) Color.Yellow else Color.Transparent),
         icon = {
             AsyncImage(
                 model = book.imageUrl,

@@ -12,22 +12,26 @@ import com.nextory.testapp.ui.booklist.BookListViewModel
 fun BookDetails(
     viewModel: BookListViewModel = hiltViewModel(),
     bookId: Long,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.getBook(bookId)
     }
+
+    val book = viewModel.book
     Scaffold(
         topBar = {
             BookDetailsTopBar(
-                book = viewModel.book,
+                title = book.title,
+                isFavorite = book.isFavorite,
+                onCheckedChanged = { checked -> viewModel.addOrRemoveFavorite(book, checked) },
                 navigateBack = navigateBack
             )
         },
         content = { padding ->
             BookDetailsContent(
                 padding = padding,
-                book = viewModel.book
+                book = book
             )
         }
     )

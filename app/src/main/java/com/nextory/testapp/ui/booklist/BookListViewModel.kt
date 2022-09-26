@@ -1,15 +1,15 @@
 package com.nextory.testapp.ui.booklist
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingConfig
-import com.nextory.testapp.data.Book
+import androidx.paging.map
 import com.nextory.testapp.data.BookRepository
+import com.nextory.testapp.domain.Book
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,33 +18,47 @@ class BookListViewModel @Inject constructor(
     private val bookRepository: BookRepository
 ) : ViewModel() {
     val pagedBooks = bookRepository.observePagedBooks(PAGING_CONFIG)
-    var book by mutableStateOf(Book(0,"","","",""))
+    var book by mutableStateOf(Book(0, "", "", "", "", false))
+
     var booksList by mutableStateOf<List<Book>>(listOf())
     var isSearching = mutableStateOf(false)
 
     private var cachedBooks = listOf<Book>()
     private var isSearchStarting = true
 
+    fun addOrRemoveFavorite(book: Book, checked: Boolean) {
+        /** FIX ME :Tried to update list with updated isFavorite value. But somehow it's not working*/
+//        pagedBooks.map { list ->
+//            list.map {
+//                if (it.id == bookId) {
+//                    it.isFavorite = !it.isFavorite
+//                }
+//            }
+//            return@map
+//        }
+        book.isFavorite = !book.isFavorite
+    }
 
-    fun getBook(id: Long) = viewModelScope.launch {
+    fun getBook(id: Long) = viewModelScope.launch(Dispatchers.Default) {
         bookRepository.getBookById(id).collect { dbBook ->
             book = dbBook
         }
     }
 
-    fun getBooks() = viewModelScope.launch {
-        bookRepository.getAllBooks().collect {dbBooks ->
+    fun getBooks() = viewModelScope.launch(Dispatchers.Default) {
+        bookRepository.getAllBooks().collect { dbBooks ->
             booksList = dbBooks
         }
     }
+
     fun searchBookList(query: String) {
-        val listToSearch = if(isSearchStarting) {
+        val listToSearch = if (isSearchStarting) {
             booksList
         } else {
             cachedBooks
         }
         viewModelScope.launch(Dispatchers.Default) {
-            if(query.isEmpty()) {
+            if (query.isEmpty()) {
                 booksList = cachedBooks
                 isSearching.value = false
                 isSearchStarting = true

@@ -12,17 +12,18 @@ import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.nextory.testapp.data.Book
 
 @Composable
 fun BookDetailsTopBar(
-    book: Book,
+    title: String,
+    isFavorite: Boolean,
+    onCheckedChanged: (Boolean) -> Unit,
     navigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = book.title
+                text = title
             )
         },
         navigationIcon = {
@@ -36,12 +37,9 @@ fun BookDetailsTopBar(
             }
         },
         actions = {
-            var isFavorite by remember { mutableStateOf(false) }
             IconToggleButton(
                 checked = isFavorite,
-                onCheckedChange = {
-                    isFavorite = !isFavorite
-                }
+                onCheckedChange = onCheckedChanged
             ) {
                 Icon(
                     imageVector = if (isFavorite) {

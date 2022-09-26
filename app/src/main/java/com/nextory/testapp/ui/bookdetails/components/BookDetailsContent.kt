@@ -9,7 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.nextory.testapp.data.Book
+import com.nextory.testapp.domain.Book
+
 
 @Composable
 fun BookDetailsContent(
