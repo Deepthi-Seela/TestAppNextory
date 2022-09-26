@@ -17,6 +17,8 @@ import com.nextory.testapp.data.Book
 @Composable
 fun BookDetailsTopBar(
     book: Book,
+    isFavorite: Boolean,
+    onCheckedChanged: (Boolean) -> Unit,
     navigateBack: () -> Unit
 ) {
     CenterAlignedTopAppBar(
@@ -36,12 +38,9 @@ fun BookDetailsTopBar(
             }
         },
         actions = {
-            var isFavorite by remember { mutableStateOf(false) }
             IconToggleButton(
                 checked = isFavorite,
-                onCheckedChange = {
-                    isFavorite = !isFavorite
-                }
+                onCheckedChange = onCheckedChanged
             ) {
                 Icon(
                     imageVector = if (isFavorite) {

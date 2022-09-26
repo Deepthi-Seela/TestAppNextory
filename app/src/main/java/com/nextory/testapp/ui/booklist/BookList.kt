@@ -1,7 +1,9 @@
 package com.nextory.testapp.ui.booklist
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -46,6 +49,12 @@ fun BookList(
         bookListViewModel.getBooks()
     }
 
+    /** FIX ME: favList is resetting to default after navigating from detail screen to list screen.*/
+    val favList by remember {
+        mutableStateOf(bookListViewModel.favBooksIdsList)
+    }
+    Log.d("favListScreen", bookListViewModel.favBooksIdsList.size.toString())
+
     BookList(
         navController = navController,
         pagedBooks = pagedBooks,
@@ -53,7 +62,8 @@ fun BookList(
             bookListViewModel.searchBookList(it)
         },
         isSearching = isSearching,
-        allBooks = bookListViewModel.booksList
+        allBooks = bookListViewModel.booksList,
+        favList = favList
     )
 }
 
@@ -68,7 +78,8 @@ private fun BookList(
     pagedBooks: LazyPagingItems<Book>,
     onSearchTextChanged: (String) -> Unit = {},
     isSearching: Boolean,
-    allBooks: List<Book>
+    allBooks: List<Book>,
+    favList: List<Long>
 ) {
     Scaffold(topBar = { BookListTopBar() }) { paddingValues ->
         var searchText by remember { mutableStateOf("") }
@@ -116,17 +127,20 @@ private fun BookList(
             // Render paged books if not searching else render all books list
             if (!isSearching || searchText.isEmpty()) {
                 items(
-                    items = pagedBooks
+                    items = pagedBooks,
+                    key = { book -> book.id}
                 ) { book ->
-                    BookItem(book = book!!, navController)
+                    BookItem(book = book!!, isFav = favList.contains(book.id), navController)
                 }
             } else {
                 items(
-                    items = allBooks
+                    items = allBooks,
+                    key = { book -> book.id}
                 ) { book ->
-                    BookItem(book = book, navController)
+                    BookItem(book = book, isFav = favList.contains(book.id), navController)
                 }
             }
+            Log.d("is fav from list item", "$favList")
         }
     }
 }
@@ -144,13 +158,17 @@ private fun BookListTopBar() {
 }
 
 @Composable
-private fun BookItem(book: Book, navController: NavController) {
+private fun BookItem(book: Book, isFav: Boolean, navController: NavController) {
     ListItem(
         modifier = Modifier
             .clickable {
                 val id = book.id
-                navController.navigate(Screen.BookDetails.route + "/$id")
-            },
+                navController.navigate(Screen.BookDetails.route + "/$id") {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+            .background(if (isFav) Color.Yellow else Color.Transparent),
         icon = {
             AsyncImage(
                 model = book.imageUrl,

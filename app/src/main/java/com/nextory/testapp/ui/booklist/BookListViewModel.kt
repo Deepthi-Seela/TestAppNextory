@@ -1,6 +1,8 @@
 package com.nextory.testapp.ui.booklist
 
+import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -22,10 +24,24 @@ class BookListViewModel @Inject constructor(
     var booksList by mutableStateOf<List<Book>>(listOf())
     var isSearching = mutableStateOf(false)
 
+    private val _favBooksIdsList  = mutableStateListOf(6L)
+    val favBooksIdsList: List<Long> = _favBooksIdsList
+
     private var cachedBooks = listOf<Book>()
     private var isSearchStarting = true
 
+    fun isFavorite(bookId: Long): Boolean {
+        return _favBooksIdsList.contains(bookId)
+    }
 
+    fun addOrRemoveFavorite(bookId: Long, checked:Boolean) {
+        if (_favBooksIdsList.contains(bookId))
+            _favBooksIdsList.remove(bookId)
+        else
+            _favBooksIdsList.add(bookId)
+
+        Log.d("favListViewmodel", favBooksIdsList.size.toString())
+    }
     fun getBook(id: Long) = viewModelScope.launch {
         bookRepository.getBookById(id).collect { dbBook ->
             book = dbBook

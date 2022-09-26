@@ -1,5 +1,6 @@
 package com.nextory.testapp.ui.bookdetails
 
+import android.util.Log
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,6 +22,8 @@ fun BookDetails(
         topBar = {
             BookDetailsTopBar(
                 book = viewModel.book,
+                isFavorite = viewModel.isFavorite(bookId),
+                onCheckedChanged = { checked -> viewModel.addOrRemoveFavorite(bookId, checked) },
                 navigateBack = navigateBack
             )
         },
